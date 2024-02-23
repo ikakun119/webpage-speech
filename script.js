@@ -18,10 +18,10 @@ function handleFileSelect(event) {
 
 function parseAndReadText(text) {
     const lines = text.split('\n');
-    lines.forEach(line => {
+    lines.forEach((line, index) => {
         const hashCount = countHashes(line);
         const cleanText = removeHashes(line);
-        readText(cleanText, hashCount);
+        readText(cleanText, hashCount, index);
     });
 }
 
@@ -41,7 +41,7 @@ function removeHashes(line) {
     return line.replace(/#/g, '').trim();
 }
 
-function readText(text, hashCount) {
+function readText(text, hashCount, index) {
     if (text) {
         if (speechSynthesisUtterance && speechSynthesisUtterance.speaking) {
             stopReading();
@@ -62,11 +62,14 @@ function readText(text, hashCount) {
             speechSynthesisUtterance.pitch = 1.7;
         }
 
-        // Attempt to play speech on user interaction
-        document.addEventListener('click', function() {
+        // ユーザーの明示的な操作で音声を再生
+        document.addEventListener('click', function clickHandler() {
             const speechSynthesis = window.speechSynthesis;
             speechSynthesis.speak(speechSynthesisUtterance);
-        }, { once: true });
+
+            // イベントリスナーを削除
+            document.removeEventListener('click', clickHandler);
+        });
     }
 }
 
