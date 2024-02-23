@@ -1,6 +1,7 @@
 document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
 let speechSynthesisUtterance;
+let isReadingEnabled = true;
 
 function handleFileSelect(event) {
     const file = event.target.files[0];
@@ -17,12 +18,8 @@ function handleFileSelect(event) {
 function parseAndReadText(text) {
     const lines = text.split('\n');
     lines.forEach(line => {
-        // ハッシュの数を取得
         const hashCount = countHashes(line);
-        // ハッシュを取り除いたテキストを取得
-        const cleanText = removeHashes(line);
-        // テキストを読み上げ
-        readText(cleanText, hashCount);
+        readText(line, hashCount);
     });
 }
 
@@ -38,13 +35,8 @@ function countHashes(line) {
     return count;
 }
 
-function removeHashes(line) {
-    // ハッシュを取り除いたテキストを返す
-    return line.replace(/#/g, '').trim();
-}
-
 function readText(text, hashCount) {
-    if (text) {
+    if (text && isReadingEnabled) {
         if (speechSynthesisUtterance && speechSynthesisUtterance.speaking) {
             stopReading();
         }
@@ -73,4 +65,11 @@ function readText(text, hashCount) {
 function stopReading() {
     const speechSynthesis = window.speechSynthesis;
     speechSynthesis.cancel();
+}
+
+function toggleReadAloud() {
+    isReadingEnabled = !isReadingEnabled;
+    if (!isReadingEnabled) {
+        stopReading();
+    }
 }
