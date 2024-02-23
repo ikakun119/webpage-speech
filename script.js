@@ -1,8 +1,10 @@
-let speechSynthesisUtterance;
+// iPadのSafariで再生できるように、ユーザーのインタラクションを待って音声を再生するようにコードを書き換える
 
 document.getElementById('fileInput').addEventListener('change', function(event) {
     handleFileSelect(event);
 });
+
+let isPlaying = false;
 
 function handleFileSelect(event) {
     const file = event.target.files[0];
@@ -64,8 +66,11 @@ function readText(text, hashCount, index) {
 
         // ユーザーの明示的な操作で音声を再生
         document.addEventListener('click', function clickHandler() {
-            const speechSynthesis = window.speechSynthesis;
-            speechSynthesis.speak(speechSynthesisUtterance);
+            if (!isPlaying) {
+                const speechSynthesis = window.speechSynthesis;
+                speechSynthesis.speak(speechSynthesisUtterance);
+                isPlaying = true;
+            }
 
             // イベントリスナーを削除
             document.removeEventListener('click', clickHandler);
