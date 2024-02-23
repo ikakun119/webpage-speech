@@ -1,6 +1,8 @@
-document.getElementById('fileInput').addEventListener('change', handleFileSelect);
-
 let speechSynthesisUtterance;
+
+document.getElementById('fileInput').addEventListener('change', function(event) {
+    handleFileSelect(event);
+});
 
 function handleFileSelect(event) {
     const file = event.target.files[0];
@@ -17,11 +19,8 @@ function handleFileSelect(event) {
 function parseAndReadText(text) {
     const lines = text.split('\n');
     lines.forEach(line => {
-        // ハッシュの数を取得
         const hashCount = countHashes(line);
-        // ハッシュを取り除いたテキストを取得
         const cleanText = removeHashes(line);
-        // テキストを読み上げ
         readText(cleanText, hashCount);
     });
 }
@@ -39,7 +38,6 @@ function countHashes(line) {
 }
 
 function removeHashes(line) {
-    // ハッシュを取り除いたテキストを返す
     return line.replace(/#/g, '').trim();
 }
 
@@ -49,24 +47,26 @@ function readText(text, hashCount) {
             stopReading();
         }
 
-        const speechSynthesis = window.speechSynthesis;
         speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
         speechSynthesisUtterance.rate = 1.7;
 
-        // ハッシュの数に応じて声のスタイルを変更
         if (hashCount === 1) {
-            speechSynthesisUtterance.pitch = -2; // 速く
+            speechSynthesisUtterance.pitch = -2;
         } else if (hashCount === 2) {
-            speechSynthesisUtterance.pitch = -1.0; // 大きく
+            speechSynthesisUtterance.pitch = -1.0;
         } else if (hashCount === 3) {
-            speechSynthesisUtterance.pitch = 1.0; // 高く
+            speechSynthesisUtterance.pitch = 1.0;
         } else if (hashCount === 4) {
-            speechSynthesisUtterance.pitch = 1.3; // 速く
+            speechSynthesisUtterance.pitch = 1.3;
         } else if (hashCount === 5) {
-            speechSynthesisUtterance.pitch = 1.7; // 大きく
+            speechSynthesisUtterance.pitch = 1.7;
         }
 
-        speechSynthesis.speak(speechSynthesisUtterance);
+        // Attempt to play speech on user interaction
+        document.addEventListener('click', function() {
+            const speechSynthesis = window.speechSynthesis;
+            speechSynthesis.speak(speechSynthesisUtterance);
+        }, { once: true });
     }
 }
 
