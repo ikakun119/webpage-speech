@@ -1,7 +1,6 @@
 document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
 let speechSynthesisUtterance;
-let isReadingEnabled = true;
 
 function handleFileSelect(event) {
     const file = event.target.files[0];
@@ -9,17 +8,18 @@ function handleFileSelect(event) {
         const reader = new FileReader();
         reader.onload = function (e) {
             const text = e.target.result;
-            parseAndReadText(text);
+            parseAndDisplayText(text);
         };
         reader.readAsText(file);
     }
 }
 
-function parseAndReadText(text) {
+function parseAndDisplayText(text) {
     const lines = text.split('\n');
     lines.forEach(line => {
         const hashCount = countHashes(line);
-        readText(line, hashCount);
+        const cleanText = removeHashes(line);
+        displayText(cleanText, hashCount);
     });
 }
 
@@ -35,8 +35,25 @@ function countHashes(line) {
     return count;
 }
 
+function removeHashes(line) {
+    return line.replace(/#/g, '').trim();
+}
+
+function displayText(text, hashCount) {
+    const displayArea = document.getElementById('output');
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+
+    paragraph.addEventListener('click', function () {
+        // テキストを読み上げ
+        readText(text, hashCount);
+    });
+
+    displayArea.appendChild(paragraph);
+}
+
 function readText(text, hashCount) {
-    if (text && isReadingEnabled) {
+    if (text) {
         if (speechSynthesisUtterance && speechSynthesisUtterance.speaking) {
             stopReading();
         }
@@ -45,7 +62,6 @@ function readText(text, hashCount) {
         speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
         speechSynthesisUtterance.rate = 1.7;
 
-        // ハッシュの数に応じて声のスタイルを変更
         if (hashCount === 1) {
             speechSynthesisUtterance.pitch = -2; // 速く
         } else if (hashCount === 2) {
@@ -65,11 +81,4 @@ function readText(text, hashCount) {
 function stopReading() {
     const speechSynthesis = window.speechSynthesis;
     speechSynthesis.cancel();
-}
-
-function toggleReadAloud() {
-    isReadingEnabled = !isReadingEnabled;
-    if (!isReadingEnabled) {
-        stopReading();
-    }
 }
