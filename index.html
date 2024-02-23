@@ -15,6 +15,20 @@
         <div id="output"></div>
     </div>
 
+    <script>
+        function handleTouchEnd() {
+            // ダミー音声合成を実行
+            var speechSynthesis = window.speechSynthesis;
+            var utterance = new SpeechSynthesisUtterance('');
+            utterance.volume = 0; // 音量を0に設定
+            speechSynthesis.speak(utterance);
+      
+            // イベントリスナーを削除
+            unityCanva.removeEventListener('touchend', handleTouchEnd);
+          }
+      
+          unityCanvas.addEventListener('touchend', handleTouchEnd);
+    </script>
     <script src="script.js"></script>
 </body>
 </html>

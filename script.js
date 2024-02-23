@@ -1,10 +1,6 @@
-// iPadのSafariで再生できるように、ユーザーのインタラクションを待って音声を再生するようにコードを書き換える
+document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-document.getElementById('fileInput').addEventListener('change', function(event) {
-    handleFileSelect(event);
-});
-
-let isPlaying = false;
+let speechSynthesisUtterance;
 
 function handleFileSelect(event) {
     const file = event.target.files[0];
@@ -20,10 +16,13 @@ function handleFileSelect(event) {
 
 function parseAndReadText(text) {
     const lines = text.split('\n');
-    lines.forEach((line, index) => {
+    lines.forEach(line => {
+        // ハッシュの数を取得
         const hashCount = countHashes(line);
+        // ハッシュを取り除いたテキストを取得
         const cleanText = removeHashes(line);
-        readText(cleanText, hashCount, index);
+        // テキストを読み上げ
+        readText(cleanText, hashCount);
     });
 }
 
@@ -40,41 +39,34 @@ function countHashes(line) {
 }
 
 function removeHashes(line) {
+    // ハッシュを取り除いたテキストを返す
     return line.replace(/#/g, '').trim();
 }
 
-function readText(text, hashCount, index) {
+function readText(text, hashCount) {
     if (text) {
         if (speechSynthesisUtterance && speechSynthesisUtterance.speaking) {
             stopReading();
         }
 
+        const speechSynthesis = window.speechSynthesis;
         speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
         speechSynthesisUtterance.rate = 1.7;
 
+        // ハッシュの数に応じて声のスタイルを変更
         if (hashCount === 1) {
-            speechSynthesisUtterance.pitch = -2;
+            speechSynthesisUtterance.pitch = -2; // 速く
         } else if (hashCount === 2) {
-            speechSynthesisUtterance.pitch = -1.0;
+            speechSynthesisUtterance.pitch = -1.0; // 大きく
         } else if (hashCount === 3) {
-            speechSynthesisUtterance.pitch = 1.0;
+            speechSynthesisUtterance.pitch = 1.0; // 高く
         } else if (hashCount === 4) {
-            speechSynthesisUtterance.pitch = 1.3;
+            speechSynthesisUtterance.pitch = 1.3; // 速く
         } else if (hashCount === 5) {
-            speechSynthesisUtterance.pitch = 1.7;
+            speechSynthesisUtterance.pitch = 1.7; // 大きく
         }
 
-        // ユーザーの明示的な操作で音声を再生
-        document.addEventListener('click', function clickHandler() {
-            if (!isPlaying) {
-                const speechSynthesis = window.speechSynthesis;
-                speechSynthesis.speak(speechSynthesisUtterance);
-                isPlaying = true;
-            }
-
-            // イベントリスナーを削除
-            document.removeEventListener('click', clickHandler);
-        });
+        speechSynthesis.speak(speechSynthesisUtterance);
     }
 }
 
