@@ -8,18 +8,17 @@ function handleFileSelect(event) {
         const reader = new FileReader();
         reader.onload = function (e) {
             const text = e.target.result;
-            parseAndDisplayText(text);
+            parseAndReadText(text);
         };
         reader.readAsText(file);
     }
 }
 
-function parseAndDisplayText(text) {
+function parseAndReadText(text) {
     const lines = text.split('\n');
     lines.forEach(line => {
         const hashCount = countHashes(line);
-        const cleanText = removeHashes(line);
-        displayText(cleanText, hashCount);
+        readText(line, hashCount);
     });
 }
 
@@ -33,23 +32,6 @@ function countHashes(line) {
         }
     }
     return count;
-}
-
-function removeHashes(line) {
-    return line.replace(/#/g, '').trim();
-}
-
-function displayText(text, hashCount) {
-    const displayArea = document.getElementById('output');
-    const paragraph = document.createElement('p');
-    paragraph.textContent = text;
-
-    paragraph.addEventListener('click', function () {
-        // テキストを読み上げ
-        readText(text, hashCount);
-    });
-
-    displayArea.appendChild(paragraph);
 }
 
 function readText(text, hashCount) {
@@ -82,3 +64,10 @@ function stopReading() {
     const speechSynthesis = window.speechSynthesis;
     speechSynthesis.cancel();
 }
+
+// ユーザーアクションで読み上げ開始
+document.getElementById('readButton').addEventListener('click', function() {
+    const outputText = document.getElementById('output').innerText;
+    const hashCount = countHashes(outputText);
+    readText(outputText, hashCount);
+});
